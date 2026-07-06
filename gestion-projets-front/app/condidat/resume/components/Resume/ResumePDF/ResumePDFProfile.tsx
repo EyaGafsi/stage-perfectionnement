@@ -1,0 +1,146 @@
+import { View, Image } from "@react-pdf/renderer";
+import {
+  ResumePDFIcon,
+  type IconType,
+} from "@/condidat/resume/components/Resume/ResumePDF/common/ResumePDFIcon";
+import { styles, spacing } from "@/condidat/resume/components/Resume/ResumePDF/styles";
+import {
+  ResumePDFLink,
+  ResumePDFSection,
+  ResumePDFText,
+} from "@/condidat/resume/components/Resume/ResumePDF/common";
+import type { ResumeProfile } from "@/condidat/resume/lib/redux/types";
+
+export const ResumePDFProfile = ({
+  profile,
+  themeColor,
+  isPDF,
+  imageUrl,
+}: {
+  profile: ResumeProfile;
+  themeColor: string;
+  isPDF: boolean;
+  imageUrl: string;
+}) => {
+  const { name, email, phone, url, summary, location } = profile;
+  const iconProps = { email, phone, location, url };
+
+  return (
+    <ResumePDFSection style={{ marginTop: spacing["4"] }}>
+      <View style={{ ...styles.flexRowBetween, alignItems: "center" }}>
+        <View style={{ flex: 1 }}>
+          <ResumePDFText
+            bold={true}
+            themeColor={themeColor}
+            style={{ fontSize: "20pt" }}
+          >
+            {name}
+          </ResumePDFText>
+          {summary && <ResumePDFText>{summary}</ResumePDFText>}
+        </View>
+
+        {/* Image Profile */}
+        {imageUrl && (
+          <View
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: 60,
+              border: `3px solid ${themeColor}`,
+              overflow: "hidden",
+              marginLeft: spacing["4"],
+            }}
+          >
+            {/* Pour PDF */}
+            {isPDF ? (
+              <Image
+                src={imageUrl}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              /* Pour HTML */
+              <img
+                src={imageUrl}
+                alt={name}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "60px",
+                  objectFit: "cover",
+                }}
+              />
+            )}
+          </View>
+        )}
+      </View>
+
+      {/* Contact Info */}
+      <View
+        style={{
+          ...styles.flexRowBetween,
+          flexWrap: "wrap",
+          marginTop: spacing["0.5"],
+        }}
+      >
+        {Object.entries(iconProps).map(([key, value]) => {
+          if (!value) return null;
+
+          let iconType = key as IconType;
+          if (key === "url") {
+            if (value.includes("github")) {
+              iconType = "url_github";
+            } else if (value.includes("linkedin")) {
+              iconType = "url_linkedin";
+            }
+          }
+
+          const shouldUseLinkWrapper = ["email", "url", "phone"].includes(key);
+          const Wrapper = ({ children }: { children: React.ReactNode }) => {
+            if (!shouldUseLinkWrapper) return <>{children}</>;
+
+            let src = "";
+            switch (key) {
+              case "email": {
+                src = `mailto:${value}`;
+                break;
+              }
+              case "phone": {
+                src = `tel:${value.replace(/[^\d+]/g, "")}`;
+                break;
+              }
+              default: {
+                src = value.startsWith("http") ? value : `https://${value}`;
+              }
+            }
+
+            return (
+              <ResumePDFLink src={src} isPDF={isPDF}>
+                {children}
+              </ResumePDFLink>
+            );
+          };
+
+          return (
+            <View
+              key={key}
+              style={{
+                ...styles.flexRow,
+                alignItems: "center",
+                gap: spacing["1"],
+              }}
+            >
+              <ResumePDFIcon type={iconType} isPDF={isPDF} />
+              <Wrapper>
+                <ResumePDFText>{value}</ResumePDFText>
+              </Wrapper>
+            </View>
+          );
+        })}
+      </View>
+    </ResumePDFSection>
+  );
+};

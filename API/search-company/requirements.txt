@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+PyJWT
+python-dotenv
+gradio_client
+pydantic

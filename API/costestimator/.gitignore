@@ -1,0 +1,20 @@
+# Environnements virtuels
+venv/
+.venv/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Fichiers dotenv / secrets locaux
+.env
+.env.*
+
+# Logs éventuels
+*.log
+
+# Dossiers de tests si tu en as
+htmlcov/
+.coverage
+.cache/

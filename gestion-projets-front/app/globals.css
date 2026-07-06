@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 12s ease-in-out infinite;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/Roboto-Regular.ttf");
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("/fonts/Roboto-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "NotoSansSC";
+  src: url("/fonts/NotoSansSC-Regular.ttf");
+}
+@font-face {
+  font-family: "NotoSansSC";
+  src: url("/fonts/NotoSansSC-Bold.ttf");
+  font-weight: bold;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+}
