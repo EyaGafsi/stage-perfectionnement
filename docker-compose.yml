@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: datapilote
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./project_back
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:admin@postgres:5432/datapilote
+      - MONGO_URI=mongodb://mongo:27017/datapilote
+      - PORT=3001
+    depends_on:
+      - postgres
+      - mongo
+
+  frontend:
+    build:
+      context: ./gestion-projets-front
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_NEST_API_URL=http://localhost:3001/api/v1
+    depends_on:
+      - backend
+
+  api-resume-parsing:
+    build: ./API/Resume_parsing
+    ports:
+      - "8001:8000"
+
+  api-callcenter-task-duration:
+    build: ./API/callcenter-task-duration-estimator
+    ports:
+      - "8002:8000"
+
+  api-callcenter-project-cost:
+    build: ./API/callcenter_project_cost_estimator
+    ports:
+      - "8003:8000"
+
+  api-concditascore:
+    build: ./API/concditascore
+    ports:
+      - "8004:8000"
+
+  api-costestimator:
+    build: ./API/costestimator
+    ports:
+      - "8005:8000"
+
+  api-delayestimator:
+    build: ./API/delayestimator
+    ports:
+      - "8006:8000"
+
+  api-domaintocompany:
+    build: ./API/domaintocompany
+    ports:
+      - "8007:8000"
+
+  api-imagegeneration:
+    build: ./API/imagegeneration
+    ports:
+      - "8008:8000"
+
+  api-marketing-project-cost:
+    build: ./API/marketing_project_cost
+    ports:
+      - "8009:8000"
+
+  api-marketing-task-estimator:
+    build: ./API/marketing_task_estimator_api
+    ports:
+      - "8010:8000"
+
+  api-predict-indistry:
+    build: ./API/predict-indistry
+    ports:
+      - "8011:8000"
+
+  api-search-company:
+    build: ./API/search-company
+    ports:
+      - "8012:8000"
+
+  api-taskhoursestimator:
+    build: ./API/taskhoursestimator
+    ports:
+      - "8013:8000"
+
+volumes:
+  postgres_data:
+  mongo_data:
