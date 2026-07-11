@@ -162,63 +162,92 @@ Each role sees only the modules relevant to them. Here is a full overview:
 
 ---
 
-## 🛠️ Local Installation
+## 🐳 Run with Docker (Recommended)
 
-### 🐳 Docker Installation (Recommended - Quick Run)
+DataPilote is fully containerized. You can build and run the entire ecosystem (Next.js frontend, NestJS backend, MongoDB, PostgreSQL, and all 13 Python microservices) locally with a single command.
 
-You can run the entire platform locally, including the frontend, backend, PostgreSQL database, MongoDB database, and all 13 Python API microservices, with a single command using Docker.
+### Prerequisites
+- [Docker](https://www.docker.com/get-started) and Docker Compose installed.
 
-#### Prerequisites
-- [Docker](https://www.docker.com/) and Docker Compose installed.
+### Step 1 — Clone the Repository
+```bash
+git clone https://github.com/EyaGafsi/stage-perfectionnement.git
+cd stage-perfectionnement
+```
 
-#### Setup & Launch
+### Step 2 — Configure Environment Variables
+Create the local `.env` files for both frontend and backend to tell the services how to talk to each other inside the Docker network.
 
-1. **Environment Variables**:
-   Ensure you have configured the `.env` files locally in their respective folders:
-   - `project_back/.env` (contains JWT secrets, ports, etc.)
-   - `gestion-projets-front/.env` (contains API URLs pointed to `http://localhost:<PORT>`, Cloudinary configuration, etc.)
+1. **Frontend (`./gestion-projets-front/.env`)**:
+   Create a `.env` file in the frontend folder with the local configurations:
+   ```env
+   # Local NestJS Backend API
+   NEXT_PUBLIC_NEST_API_URL=http://localhost:3001/api/v1
 
-2. **Start the Stack**:
-   From the root folder of the project, run:
-   ```bash
-   docker-compose up -d --build
+   # Local Python Microservices Ports
+   NEXT_PUBLIC_AI_task_DURATION_API_URL=http://localhost:8013
+   NEXT_PUBLIC_AI_DELAY_PREDICTION_API_URL=http://localhost:8006
+   NEXT_PUBLIC_COST_ESTIMATION_API_URL=http://localhost:8005
+   NEXT_PUBLIC_AI_Industry_Estimator_API_URL=http://localhost:8011/predict-service
+   NEXT_PUBLIC_API_Company_searsh_URL=http://localhost:8012
+   NEXT_PUBLIC_API_Image_generation_URL=http://localhost:8008/generate-image
+   NEXT_PUBLIC_AI_Indistry_Company_API_URL=http://localhost:8007/find-companies
+   NEXT_PUBLIC_AI_MARKETING_URL=http://localhost:8010/predict
+
+   # Cloudinary Credentials (Required for image upload)
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
    ```
-   This will build and start all containers in the background.
 
-3. **Verify running containers**:
-   ```bash
-   docker ps
+2. **Backend (`./project_back/.env`)**:
+   Create a `.env` file in the backend folder with the database and authentication settings:
+   ```env
+   PORT=3001
+   DATABASE_URL=postgresql://postgres:admin@postgres:5432/datapilote
+   MONGO_URI=mongodb://mongo:27017/datapilote
+   ACCESS_TOKEN_SECRET_KEY=some_random_jwt_secret_key_123!
+   ACCESS_TOKEN_EXPIRE_TIME=7d
    ```
-   All 17 containers (frontend, backend, postgres, mongo, and 13 Python API microservices) should be running.
 
-4. **Access the application**:
-   - Frontend: [http://localhost:3000](http://localhost:3000)
-   - Backend: [http://localhost:3001/api/v1](http://localhost:3001/api/v1)
+### Step 3 — Build and Start the Containers
+Start the containers in detached mode:
+```bash
+docker-compose up --build -d
+```
+Docker Compose will download the necessary database images, build the custom Node.js and Python microservice images, and run:
+- **Next.js Frontend**: [http://localhost:3000](http://localhost:3000)
+- **NestJS Backend**: [http://localhost:3001](http://localhost:3001)
+- **PostgreSQL Database**: `localhost:5432` (volume persisted)
+- **MongoDB Database**: `localhost:27017` (volume persisted)
+- **13 FastAPI Microservices**: Mapped on ports `8001` through `8013`
+
+### Step 4 — Stop the Containers
+When done, you can stop all services with:
+```bash
+docker-compose down
+```
 
 ---
 
-### 🛠️ Manual Installation (Without Docker)
+## 🛠️ Manual Local Installation (Alternative)
 
-#### Prerequisites
-
+### Prerequisites
 - Node.js 18+
 - Python 3.10+
-- PostgreSQL
-- MongoDB
-
+- PostgreSQL (installed and running locally)
+- MongoDB (installed and running locally)
 
 ### 1. Frontend (Next.js)
-
+Navigate to the frontend folder and install packages:
 ```bash
-git clone https://github.com/themedworld/gestion-projets-front.git
 cd gestion-projets-front
 npm install
 ```
 
-Create `.env.local`:
-
+Create a `.env` file:
 ```env
-NEXT_PUBLIC_NEST_API_URL=https://project-back-b865.onrender.com/api/v1
+NEXT_PUBLIC_NEST_API_URL=http://localhost:3001/api/v1
 NEXT_PUBLIC_AI_task_DURATION_API_URL=https://taskhoursestimator.onrender.com
 NEXT_PUBLIC_AI_Industry_Estimator_API_URL=https://predict-indistry.onrender.com/predict-service
 NEXT_PUBLIC_COST_ESTIMATION_API_URL=https://costestimator-1ro4.onrender.com
@@ -229,56 +258,45 @@ NEXT_PUBLIC_AI_MARKETING_URL=https://marketing-task-estimator-api.onrender.com/p
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-GOOGLE_SERVICE_ACCOUNT_KEY=your_base64_google_service_account_key
 ```
 
+Run in development:
 ```bash
 npm run dev
-# → http://localhost:3000
+# -> http://localhost:3000
 ```
 
----
-
 ### 2. Backend (NestJS)
-
+Navigate to the backend folder and install packages:
 ```bash
-git clone https://github.com/themedworld/project_back.git
-cd project_back
+cd ../project_back
 npm install
 ```
 
-Create `.env`:
-
+Create a `.env` file:
 ```env
-DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
-ACCESS_TOKEN_SECRET_KEY=your_jwt_secret
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/datapilote
+MONGO_URI=mongodb://localhost:27017/datapilote
+PORT=3001
+ACCESS_TOKEN_SECRET_KEY=some_random_jwt_secret_key_123!
 ACCESS_TOKEN_EXPIRE_TIME=7d
-REDIS_PORT=6379
-REDIS_HOST=localhost
-MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net/dbname
 ```
 
+Run in development:
 ```bash
 npm run start:dev
-# → http://localhost:3001
+# -> http://localhost:3001
 ```
 
----
-
 ### 3. API Microservices (FastAPI)
-
-Each microservice is independent. Example with CV parsing:
-
+Each python microservice is stored inside the `API/` folder and runs independently. Example with CV parsing:
 ```bash
-git clone https://github.com/themedworld/Resume_parsing.git
-cd Resume_parsing
+cd ../API/Resume_parsing
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate        # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8001
 ```
-
-Repeat for each microservice on a different port.
 
 ---
 
@@ -288,7 +306,7 @@ Repeat for each microservice on a different port.
 DataPilote/
 │
 ├── gestion-projets-front/                   # Next.js 14+ Frontend
-├── backend-gestion-projets/                 # NestJS Backend
+├── project_back/                            # NestJS Backend
 │
 └── API/
     ├── cv_parsing_microservice/             # PDF → structured profile

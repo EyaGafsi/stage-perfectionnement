@@ -21,27 +21,56 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Running the Service
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+You can run this NestJS backend either as part of the full containerized application using Docker (recommended) or manually.
 
-## Project setup
+### 🐳 Option 1: Docker (Recommended)
 
+To run the backend alongside the databases, frontend, and microservices:
+1. Navigate to the root directory of the project.
+2. Ensure you have configured the `./project_back/.env` file (see below).
+3. Build and launch using Docker Compose:
+   ```bash
+   docker-compose up --build -d backend
+   ```
+
+---
+
+### 🛠️ Option 2: Manual project setup
+
+To run the NestJS backend standalone on your host machine:
+
+#### Prerequisites
+- Node.js 18+
+- A running PostgreSQL instance (database name: `datapilote`)
+- A running MongoDB instance
+
+#### Step 1: Install Dependencies
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+#### Step 2: Configure Environment Variables
+Create a `.env` file in the `project_back` folder with the following settings:
+```env
+PORT=3001
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/datapilote
+MONGO_URI=mongodb://localhost:27017/datapilote
+ACCESS_TOKEN_SECRET_KEY=some_random_jwt_secret_key_123!
+ACCESS_TOKEN_EXPIRE_TIME=7d
+```
 
+#### Step 3: Run the Application
 ```bash
 # development
-$ npm run start
+npm run start
 
-# watch mode
-$ npm run start:dev
+# watch mode (reloads automatically on change)
+npm run start:dev
 
 # production mode
-$ npm run start:prod
+npm run start:prod
 ```
 
 ## Run tests
@@ -96,20 +125,3 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-## 🐳 Running with Docker
-
-This backend can be built and run in a Docker container.
-
-### 1. Build and run a single container
-```bash
-docker build -t datapilot-backend .
-docker run -p 3001:3001 --env-file .env datapilot-backend
-```
-
-### 2. Run with Docker Compose
-To run the backend along with the database and other services, execute the following command from the root of the repository:
-```bash
-docker-compose up -d --build backend
-```
-
