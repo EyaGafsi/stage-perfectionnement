@@ -162,40 +162,123 @@ Each role sees only the modules relevant to them. Here is a full overview:
 
 ---
 
-## 🐳 Running Locally (Docker Compose)
+## 🛠️ Local Installation
 
-The entire platform (Databases, Backend, Frontend, and 13 ML Microservices) has been fully containerized using Docker. This is the **recommended** way to run the project.
+### 🐳 Docker Installation (Recommended - Quick Run)
 
-### Prerequisites
+You can run the entire platform locally, including the frontend, backend, PostgreSQL database, MongoDB database, and all 13 Python API microservices, with a single command using Docker.
 
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+#### Prerequisites
+- [Docker](https://www.docker.com/) and Docker Compose installed.
 
-### Quick Start
+#### Setup & Launch
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/EyaGafsi/stage-perfectionnement.git
-   cd stage-perfectionnement
-   ```
+1. **Environment Variables**:
+   Ensure you have configured the `.env` files locally in their respective folders:
+   - `project_back/.env` (contains JWT secrets, ports, etc.)
+   - `gestion-projets-front/.env` (contains API URLs pointed to `http://localhost:<PORT>`, Cloudinary configuration, etc.)
 
-2. Spin up the entire multi-service architecture:
+2. **Start the Stack**:
+   From the root folder of the project, run:
    ```bash
    docker-compose up -d --build
    ```
+   This will build and start all containers in the background.
 
-This command will automatically:
-- Pull and start **PostgreSQL** and **MongoDB**.
-- Build and start the **NestJS Backend** (accessible at `http://localhost:3001/api/v1`).
-- Build and start all **13 FastAPI Microservices** on ports `8001` through `8013`.
-- Build and start the **Next.js Frontend** (accessible at `http://localhost:3000`).
+3. **Verify running containers**:
+   ```bash
+   docker ps
+   ```
+   All 17 containers (frontend, backend, postgres, mongo, and 13 Python API microservices) should be running.
 
-### Accessing the Platform
+4. **Access the application**:
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend: [http://localhost:3001/api/v1](http://localhost:3001/api/v1)
 
-Once the containers are running, simply open your browser and navigate to:
-👉 **[http://localhost:3000](http://localhost:3000)**
+---
 
-*Note: The frontend is configured to automatically communicate with the local Docker containers.*
+### 🛠️ Manual Installation (Without Docker)
+
+#### Prerequisites
+
+- Node.js 18+
+- Python 3.10+
+- PostgreSQL
+- MongoDB
+
+
+### 1. Frontend (Next.js)
+
+```bash
+git clone https://github.com/themedworld/gestion-projets-front.git
+cd gestion-projets-front
+npm install
+```
+
+Create `.env.local`:
+
+```env
+NEXT_PUBLIC_NEST_API_URL=https://project-back-b865.onrender.com/api/v1
+NEXT_PUBLIC_AI_task_DURATION_API_URL=https://taskhoursestimator.onrender.com
+NEXT_PUBLIC_AI_Industry_Estimator_API_URL=https://predict-indistry.onrender.com/predict-service
+NEXT_PUBLIC_COST_ESTIMATION_API_URL=https://costestimator-1ro4.onrender.com
+NEXT_PUBLIC_API_Company_searsh_URL=https://search-company-xc9u.onrender.com
+NEXT_PUBLIC_API_Image_generation_URL=https://imagegeneration-vwcn.onrender.com/generate-image
+NEXT_PUBLIC_AI_Indistry_Company_API_URL=https://domaintocompany.onrender.com/find-companies
+NEXT_PUBLIC_AI_MARKETING_URL=https://marketing-task-estimator-api.onrender.com/predict
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+GOOGLE_SERVICE_ACCOUNT_KEY=your_base64_google_service_account_key
+```
+
+```bash
+npm run dev
+# → http://localhost:3000
+```
+
+---
+
+### 2. Backend (NestJS)
+
+```bash
+git clone https://github.com/themedworld/project_back.git
+cd project_back
+npm install
+```
+
+Create `.env`:
+
+```env
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+ACCESS_TOKEN_SECRET_KEY=your_jwt_secret
+ACCESS_TOKEN_EXPIRE_TIME=7d
+REDIS_PORT=6379
+REDIS_HOST=localhost
+MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net/dbname
+```
+
+```bash
+npm run start:dev
+# → http://localhost:3001
+```
+
+---
+
+### 3. API Microservices (FastAPI)
+
+Each microservice is independent. Example with CV parsing:
+
+```bash
+git clone https://github.com/themedworld/Resume_parsing.git
+cd Resume_parsing
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
+```
+
+Repeat for each microservice on a different port.
 
 ---
 
